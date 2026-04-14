@@ -1,0 +1,52 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+spring:
+  application:
+    name: deafmute
+  profiles:
+    active: dev
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 20MB
+    http:
+      multipart:
+        max-file-size: 50MB
+        max-request-size: 50MB
+
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+  type-aliases-package: dev.forint.deafmute.modules.*.entity
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      id-type: auto
+
+jwt:
+  secret: your-very-strong-secret-key-change-this-at-least-32-bytes
+  expiration: 86400000
+  header: Authorization
+  token-prefix: Bearer
+
+minio:
+  endpoint: http://8.133.16.236:9000
+  access-key: admin
+  secret-key: 0d00@0721
+  bucket-name: deafmute
+  read-path: http://8.133.16.236:9000/deafmute
+
+logging:
+  level:
+    root: info
+    dev.forint.campuslostfound: debug
+
+wechat:
+  miniapp:
+    appid: wxdf1286da1ad207a9
+    secret: 9fbe84b4ce9c71f9698fbfb3e3bb22e5
