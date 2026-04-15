@@ -16,9 +16,17 @@ public class Category {
 
     private String name;
 
+    private String type;
+
+    private String icon;
+
+    private String description;
+
     private Integer sort;
 
     private Integer status;
 
     private LocalDateTime createTime;
+
+    private LocalDateTime updateTime;
 }

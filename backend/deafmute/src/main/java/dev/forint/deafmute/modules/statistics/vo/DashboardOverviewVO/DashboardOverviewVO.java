@@ -7,15 +7,13 @@ public class DashboardOverviewVO {
 
     private Long totalUsers;
 
-    private Long totalInfos;
+    private Long totalPosts;
 
-    private Long pendingInfos;
+    private Long pendingPosts;
 
-    private Long publishedInfos;
+    private Long totalComments;
 
-    private Long finishedInfos;
-
-    private Long rejectedInfos;
+    private Long totalCategories;
 
     private Long totalNotices;
 }

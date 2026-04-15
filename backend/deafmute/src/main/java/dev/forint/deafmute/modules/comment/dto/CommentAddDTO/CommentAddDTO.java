@@ -7,8 +7,8 @@ import lombok.Data;
 @Data
 public class CommentAddDTO {
 
-    @NotNull(message = "信息ID不能为空")
-    private Long infoId;
+    @NotNull(message = "帖子ID不能为空")
+    private Long postId;
 
     private Long parentId;
 

@@ -15,11 +15,10 @@ const loading = ref(false)
 
 const overview = reactive<OverviewData>({
   totalUsers: 0,
-  totalInfos: 0,
-  pendingInfos: 0,
-  publishedInfos: 0,
-  finishedInfos: 0,
-  rejectedInfos: 0,
+  totalPosts: 0,
+  pendingPosts: 0,
+  totalComments: 0,
+  totalCategories: 0,
   totalNotices: 0
 })
 
@@ -31,13 +30,19 @@ const pieChartRef = ref<HTMLDivElement | null>(null)
 let lineChart: echarts.ECharts | null = null
 let pieChart: echarts.ECharts | null = null
 
+const contentComposition = computed(() => [
+  { name: "帖子", value: overview.totalPosts },
+  { name: "评论", value: overview.totalComments },
+  { name: "分类", value: overview.totalCategories },
+  { name: "公告", value: overview.totalNotices }
+])
+
 const cardList = computed(() => [
   { label: "用户总数", value: overview.totalUsers },
-  { label: "信息总数", value: overview.totalInfos },
-  { label: "待审核", value: overview.pendingInfos },
-  { label: "已发布", value: overview.publishedInfos },
-  { label: "已完结", value: overview.finishedInfos },
-  { label: "已驳回", value: overview.rejectedInfos },
+  { label: "帖子总数", value: overview.totalPosts },
+  { label: "待审核帖子", value: overview.pendingPosts },
+  { label: "评论总数", value: overview.totalComments },
+  { label: "启用分类", value: overview.totalCategories },
   { label: "公告总数", value: overview.totalNotices }
 ])
 
@@ -69,7 +74,7 @@ function renderLineChart() {
     },
     series: [
       {
-        name: "发布数量",
+        name: "新增帖子数",
         type: "line",
         smooth: true,
         data: trendList.value.map(item => item.count),
@@ -95,7 +100,7 @@ function renderPieChart() {
     },
     series: [
       {
-        name: "信息状态分布",
+        name: "内容构成",
         type: "pie",
         radius: ["45%", "70%"],
         center: ["50%", "45%"],
@@ -103,12 +108,7 @@ function renderPieChart() {
         label: {
           formatter: "{b}: {c}"
         },
-        data: [
-          { name: "待审核", value: overview.pendingInfos },
-          { name: "已发布", value: overview.publishedInfos },
-          { name: "已完结", value: overview.finishedInfos },
-          { name: "已驳回", value: overview.rejectedInfos }
-        ]
+        data: contentComposition.value
       }
     ]
   })
@@ -160,7 +160,7 @@ onBeforeUnmount(() => {
   <div class="app-container" v-loading="loading">
     <div class="page-header">
       <div class="page-title">仪表盘</div>
-      <div class="page-desc">校园失物招领后台工作台首页</div>
+      <div class="page-desc">智能手语翻译工具一期内容平台运营概览</div>
     </div>
 
     <div class="card-grid">
@@ -179,7 +179,7 @@ onBeforeUnmount(() => {
       <el-col :xs="24" :lg="16">
         <el-card shadow="never">
           <template #header>
-            <div class="block-title">近 7 天发布趋势</div>
+            <div class="block-title">近 7 天帖子新增趋势</div>
           </template>
           <div ref="lineChartRef" class="chart-box" />
         </el-card>
@@ -188,7 +188,7 @@ onBeforeUnmount(() => {
       <el-col :xs="24" :lg="8">
         <el-card shadow="never">
           <template #header>
-            <div class="block-title">信息状态分布</div>
+            <div class="block-title">平台内容构成</div>
           </template>
           <div ref="pieChartRef" class="chart-box" />
         </el-card>

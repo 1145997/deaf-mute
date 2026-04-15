@@ -14,13 +14,11 @@ public interface CommentService extends IService<Comment> {
 
     void add(CommentAddDTO dto);
 
-    List<CommentVO> getListByInfoId(Long infoId);
+    List<CommentVO> getListByPostId(Long postId);
 
     Page<CommentAdminVO> getAdminPage(AdminCommentQueryDTO dto);
 
     void deleteByAdmin(Long id);
 
-    void hideByAdmin(Long id);
-
-    void showByAdmin(Long id);
+    void updateStatusByAdmin(Long id, Integer status);
 }

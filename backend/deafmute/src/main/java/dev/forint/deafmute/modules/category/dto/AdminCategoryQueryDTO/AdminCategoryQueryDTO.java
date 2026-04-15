@@ -7,6 +7,8 @@ public class AdminCategoryQueryDTO {
 
     private String keyword;
 
+    private String type;
+
     private Integer status;
 
     private Integer pageNum = 1;

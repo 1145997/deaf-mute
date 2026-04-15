@@ -7,7 +7,12 @@ import dev.forint.deafmute.modules.comment.service.CommentService;
 import dev.forint.deafmute.modules.comment.vo.CommentVO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -22,13 +27,12 @@ public class CommentController {
     @PostMapping
     public Result<Void> add(@RequestBody @Valid CommentAddDTO dto) {
         userTokenUtils.checkUserLogin();
-
         commentService.add(dto);
         return Result.success("评论成功", null);
     }
 
     @GetMapping("/list")
-    public Result<List<CommentVO>> list(@RequestParam Long infoId) {
-        return Result.success(commentService.getListByInfoId(infoId));
+    public Result<List<CommentVO>> list(@RequestParam Long postId) {
+        return Result.success(commentService.getListByPostId(postId));
     }
 }

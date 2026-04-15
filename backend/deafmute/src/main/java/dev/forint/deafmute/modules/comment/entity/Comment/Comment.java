@@ -14,7 +14,7 @@ public class Comment {
     @TableId(type = IdType.AUTO)
     private Long id;
 
-    private Long infoId;
+    private Long postId;
 
     private Long userId;
 

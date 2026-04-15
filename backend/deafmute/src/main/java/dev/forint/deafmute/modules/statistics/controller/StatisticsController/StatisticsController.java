@@ -28,15 +28,17 @@ public class StatisticsController {
         return Result.success(statisticsService.getOverview());
     }
 
-    @GetMapping("/trend/recent7days")
-    public Result<Map<String, Object>> recent7DaysTrend() {
+    @GetMapping("/content-trend")
+    public Result<Map<String, Object>> contentTrend() {
         adminTokenUtils.checkAdminLogin();
-
-        List<TrendVO> trendList = statisticsService.getRecent7DaysTrend();
-
+        List<TrendVO> trendList = statisticsService.getRecent7DaysContentTrend();
         Map<String, Object> data = new HashMap<>();
         data.put("list", trendList);
-
         return Result.success(data);
+    }
+
+    @GetMapping("/trend/recent7days")
+    public Result<Map<String, Object>> recent7DaysTrend() {
+        return contentTrend();
     }
 }

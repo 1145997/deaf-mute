@@ -9,5 +9,5 @@ public interface StatisticsService {
 
     DashboardOverviewVO getOverview();
 
-    List<TrendVO> getRecent7DaysTrend();
+    List<TrendVO> getRecent7DaysContentTrend();
 }

@@ -10,6 +10,13 @@ public class CategoryAddDTO {
     @NotBlank(message = "分类名称不能为空")
     private String name;
 
+    @NotBlank(message = "分类类型不能为空")
+    private String type;
+
+    private String icon;
+
+    private String description;
+
     @NotNull(message = "排序号不能为空")
     private Integer sort;
 

@@ -5,6 +5,7 @@ import {
   deleteCategory,
   getCategoryList,
   updateCategory,
+  type CategoryType,
   type CategoryFormData,
   type CategoryItem
 } from "@@/apis/category"
@@ -23,6 +24,7 @@ const queryForm = reactive({
   pageNum: 1,
   pageSize: 10,
   keyword: "",
+  type: undefined as CategoryType | undefined,
   status: undefined as number | undefined
 })
 
@@ -33,6 +35,9 @@ const currentId = ref<number | null>(null)
 const formRef = ref<FormInstance>()
 const formData = reactive<CategoryFormData>({
   name: "",
+  type: "POST",
+  icon: "",
+  description: "",
   sort: 1,
   status: 1
 })
@@ -41,6 +46,9 @@ const formRules: FormRules = {
   name: [
     { required: true, message: "请输入分类名称", trigger: "blur" },
     { min: 1, max: 20, message: "长度在 1 到 20 个字符", trigger: "blur" }
+  ],
+  type: [
+    { required: true, message: "请选择分类类型", trigger: "change" }
   ],
   sort: [
     { required: true, message: "请输入排序号", trigger: "blur" }
@@ -58,6 +66,14 @@ function getStatusTagType(status: number) {
   return status === 1 ? "success" : "info"
 }
 
+function getTypeText(type: CategoryType) {
+  const map: Record<CategoryType, string> = {
+    POST: "帖子分类",
+    LEARNING: "学习分类"
+  }
+  return map[type]
+}
+
 async function fetchList() {
   loading.value = true
   try {
@@ -65,6 +81,7 @@ async function fetchList() {
       pageNum: queryForm.pageNum,
       pageSize: queryForm.pageSize,
       keyword: queryForm.keyword || undefined,
+      type: queryForm.type,
       status: queryForm.status
     })
     tableData.value = res.data.list
@@ -83,6 +100,7 @@ async function handleReset() {
   queryForm.pageNum = 1
   queryForm.pageSize = 10
   queryForm.keyword = ""
+  queryForm.type = undefined
   queryForm.status = undefined
   await fetchList()
 }
@@ -100,6 +118,9 @@ async function handleCurrentChange(page: number) {
 
 function resetFormData() {
   formData.name = ""
+  formData.type = "POST"
+  formData.icon = ""
+  formData.description = ""
   formData.sort = 1
   formData.status = 1
   currentId.value = null
@@ -119,6 +140,9 @@ function handleEdit(row: CategoryItem) {
   dialogVisible.value = true
   currentId.value = row.id
   formData.name = row.name
+  formData.type = row.type
+  formData.icon = row.icon || ""
+  formData.description = row.description || ""
   formData.sort = row.sort
   formData.status = row.status
   nextTick(() => {
@@ -187,6 +211,13 @@ onMounted(() => {
           />
         </el-form-item>
 
+        <el-form-item label="类型">
+          <el-select v-model="queryForm.type" placeholder="请选择类型" clearable style="width: 160px">
+            <el-option label="帖子分类" value="POST" />
+            <el-option label="学习分类" value="LEARNING" />
+          </el-select>
+        </el-form-item>
+
         <el-form-item label="状态">
           <el-select v-model="queryForm.status" placeholder="请选择状态" clearable style="width: 160px">
             <el-option label="启用" :value="1" />
@@ -219,6 +250,12 @@ onMounted(() => {
       <el-table v-loading="loading" :data="tableData" border>
         <el-table-column prop="id" label="分类 ID" width="100" align="center" />
         <el-table-column prop="name" label="分类名称" min-width="180" show-overflow-tooltip />
+        <el-table-column label="分类类型" width="120" align="center">
+          <template #default="{ row }">
+            {{ getTypeText(row.type) }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="description" label="分类描述" min-width="220" show-overflow-tooltip />
         <el-table-column prop="sort" label="排序号" width="100" align="center" />
         <el-table-column label="状态" width="100" align="center">
           <template #default="{ row }">
@@ -265,6 +302,32 @@ onMounted(() => {
             v-model.trim="formData.name"
             placeholder="请输入分类名称"
             maxlength="20"
+            show-word-limit
+          />
+        </el-form-item>
+
+        <el-form-item label="分类类型" prop="type">
+          <el-select v-model="formData.type" placeholder="请选择分类类型" style="width: 100%">
+            <el-option label="帖子分类" value="POST" />
+            <el-option label="学习分类" value="LEARNING" />
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="图标" prop="icon">
+          <el-input
+            v-model.trim="formData.icon"
+            placeholder="请输入图标名称或资源地址，可选"
+            maxlength="100"
+          />
+        </el-form-item>
+
+        <el-form-item label="分类描述" prop="description">
+          <el-input
+            v-model.trim="formData.description"
+            type="textarea"
+            :rows="3"
+            placeholder="请输入分类描述，可选"
+            maxlength="100"
             show-word-limit
           />
         </el-form-item>

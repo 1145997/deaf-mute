@@ -33,7 +33,7 @@ public class FileController {
             suffix = originalFilename.substring(originalFilename.lastIndexOf("."));
         }
 
-        String objectName = "lostfound/" + UUID.randomUUID() + suffix;
+        String objectName = "deafmute/" + UUID.randomUUID() + suffix;
 
         minioClient.putObject(
                 PutObjectArgs.builder()

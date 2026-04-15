@@ -4,7 +4,7 @@ import { pinia } from "@/pinia"
 import { routerConfig } from "@/router/config"
 import { useSettingsStore } from "./settings"
 import { useTagsViewStore } from "./tags-view"
-import { router, resetRouter } from "@/router"
+import { resetRouter, router } from "@/router"
 
 export const useUserStore = defineStore("user", () => {
   const token = ref<string>(getToken() || "")

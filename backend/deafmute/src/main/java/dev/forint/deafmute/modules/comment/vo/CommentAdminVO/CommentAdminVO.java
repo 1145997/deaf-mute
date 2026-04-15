@@ -9,9 +9,11 @@ public class CommentAdminVO {
 
     private Long id;
 
-    private Long infoId;
+    private Long postId;
 
     private Long userId;
+
+    private String userNickname;
 
     private Long parentId;
 

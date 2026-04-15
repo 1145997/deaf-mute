@@ -2,11 +2,10 @@ import { request } from "@/http/axios"
 
 export interface OverviewData {
   totalUsers: number
-  totalInfos: number
-  pendingInfos: number
-  publishedInfos: number
-  finishedInfos: number
-  rejectedInfos: number
+  totalPosts: number
+  pendingPosts: number
+  totalComments: number
+  totalCategories: number
   totalNotices: number
 }
 

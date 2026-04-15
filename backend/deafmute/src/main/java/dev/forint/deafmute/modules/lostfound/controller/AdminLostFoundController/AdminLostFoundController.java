@@ -6,6 +6,7 @@ import dev.forint.deafmute.modules.lostfound.dto.LostFoundRejectDTO;
 import dev.forint.deafmute.modules.lostfound.service.LostFoundService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Profile;
 import org.springframework.web.bind.annotation.*;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -19,6 +20,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/admin/lostfound")
 @RequiredArgsConstructor
+@Profile("legacy-lostfound")
 public class AdminLostFoundController {
 
     private final AdminTokenUtils adminTokenUtils;

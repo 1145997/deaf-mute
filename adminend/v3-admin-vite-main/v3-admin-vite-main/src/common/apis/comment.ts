@@ -3,15 +3,17 @@ import { request } from "@/http/axios"
 export interface CommentQuery {
   pageNum: number
   pageSize: number
-  infoId?: number
+  postId?: number
+  userId?: number
   status?: number
   keyword?: string
 }
 
 export interface CommentItem {
   id: number
-  infoId: number
+  postId: number
   userId: number
+  userNickname: string | null
   parentId: number | null
   content: string
   status: number

@@ -5,7 +5,9 @@ import lombok.Data;
 @Data
 public class AdminCommentQueryDTO {
 
-    private Long infoId;
+    private Long postId;
+
+    private Long userId;
 
     private Integer status;
 

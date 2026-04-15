@@ -9,6 +9,7 @@ import dev.forint.deafmute.modules.lostfound.service.LostFoundService;
 import dev.forint.deafmute.modules.lostfound.vo.LostFoundListVO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Profile;
 import org.springframework.web.bind.annotation.*;
 import dev.forint.deafmute.modules.lostfound.vo.LostFoundDetailVO;
 
@@ -18,6 +19,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/lostfound")
 @RequiredArgsConstructor
+@Profile("legacy-lostfound")
 public class LostFoundController {
 
     private final UserTokenUtils userTokenUtils;

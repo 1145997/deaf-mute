@@ -20,7 +20,8 @@ const total = ref(0)
 const queryForm = reactive({
   pageNum: 1,
   pageSize: 10,
-  infoId: undefined as number | undefined,
+  postId: undefined as number | undefined,
+  userId: undefined as number | undefined,
   status: undefined as number | undefined,
   keyword: ""
 })
@@ -29,7 +30,7 @@ function getStatusText(status: number) {
   return status === 1 ? "正常" : "已屏蔽"
 }
 
-function getStatusTagType(status: number) {
+function getStatusTagType(status: number): "success" | "info" {
   return status === 1 ? "success" : "info"
 }
 
@@ -39,7 +40,8 @@ async function fetchList() {
     const res = await getCommentList({
       pageNum: queryForm.pageNum,
       pageSize: queryForm.pageSize,
-      infoId: queryForm.infoId,
+      postId: queryForm.postId,
+      userId: queryForm.userId,
       status: queryForm.status,
       keyword: queryForm.keyword || undefined
     })
@@ -58,7 +60,8 @@ async function handleSearch() {
 async function handleReset() {
   queryForm.pageNum = 1
   queryForm.pageSize = 10
-  queryForm.infoId = undefined
+  queryForm.postId = undefined
+  queryForm.userId = undefined
   queryForm.status = undefined
   queryForm.keyword = ""
   await fetchList()
@@ -152,12 +155,22 @@ onMounted(() => {
   <div class="app-container">
     <el-card shadow="never" class="search-card">
       <el-form :inline="true">
-        <el-form-item label="信息 ID">
+        <el-form-item label="帖子 ID">
           <el-input-number
-            v-model="queryForm.infoId"
+            v-model="queryForm.postId"
             :min="1"
             controls-position="right"
-            placeholder="请输入信息ID"
+            placeholder="请输入帖子 ID"
+            style="width: 180px"
+          />
+        </el-form-item>
+
+        <el-form-item label="用户 ID">
+          <el-input-number
+            v-model="queryForm.userId"
+            :min="1"
+            controls-position="right"
+            placeholder="请输入用户 ID"
             style="width: 180px"
           />
         </el-form-item>
@@ -200,7 +213,12 @@ onMounted(() => {
 
       <el-table v-loading="loading" :data="tableData" border>
         <el-table-column prop="id" label="评论 ID" width="100" align="center" />
-        <el-table-column prop="infoId" label="信息 ID" width="100" align="center" />
+        <el-table-column prop="postId" label="帖子 ID" width="100" align="center" />
+        <el-table-column label="评论用户" min-width="160" show-overflow-tooltip>
+          <template #default="{ row }">
+            {{ row.userNickname || `用户 #${row.userId}` }}
+          </template>
+        </el-table-column>
         <el-table-column prop="userId" label="用户 ID" width="100" align="center" />
         <el-table-column label="父评论 ID" width="110" align="center">
           <template #default="{ row }">

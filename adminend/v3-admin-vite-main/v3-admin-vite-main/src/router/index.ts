@@ -6,10 +6,7 @@ import { flatMultiLevelRoutes } from "./helper"
 
 const Layouts = () => import("@/layouts/index.vue")
 
-/**
- * @name 常驻路由
- * @description 除了 redirect/403/404/login 等隐藏页面，其他页面建议设置唯一的 Name 属性
- */
+/** 常驻路由 */
 export const constantRoutes: RouteRecordRaw[] = [
   {
     path: "/redirect",
@@ -64,29 +61,29 @@ export const constantRoutes: RouteRecordRaw[] = [
     ]
   },
   {
-    path: "/lostfound",
+    path: "/post",
     component: Layouts,
-    redirect: "/lostfound/pending",
-    name: "LostFound",
+    redirect: "/post/pending",
+    name: "Post",
     meta: {
-      title: "失物招领管理",
-      elIcon: "Search"
+      title: "帖子管理",
+      elIcon: "Document"
     },
     children: [
       {
         path: "pending",
-        component: () => import("@/pages/lostfound/pending.vue"),
-        name: "LostFoundPending",
+        component: () => import("@/pages/post/pending.vue"),
+        name: "PostPending",
         meta: {
-          title: "待审核信息"
+          title: "帖子审核"
         }
       },
       {
         path: "list",
-        component: () => import("@/pages/lostfound/list.vue"),
-        name: "LostFoundList",
+        component: () => import("@/pages/post/list.vue"),
+        name: "PostList",
         meta: {
-          title: "信息管理"
+          title: "帖子列表"
         }
       }
     ]
@@ -170,15 +167,54 @@ export const constantRoutes: RouteRecordRaw[] = [
         }
       }
     ]
+  },
+  {
+    path: "/recognition",
+    component: Layouts,
+    redirect: "/recognition/gesture-library",
+    name: "Recognition",
+    meta: {
+      title: "识别配置",
+      elIcon: "SetUp"
+    },
+    children: [
+      {
+        path: "gesture-library",
+        component: () => import("@/pages/gesture-library/list.vue"),
+        name: "GestureLibraryList",
+        meta: {
+          title: "基础手势库"
+        }
+      },
+      {
+        path: "phrase-template",
+        component: () => import("@/pages/phrase-template/list.vue"),
+        name: "PhraseTemplateList",
+        meta: {
+          title: "短语模板"
+        }
+      },
+      {
+        path: "recognition-config",
+        component: () => import("@/pages/recognition-config/list.vue"),
+        name: "RecognitionConfigList",
+        meta: {
+          title: "全局识别配置"
+        }
+      },
+      {
+        path: "gesture-flow",
+        component: () => import("@/pages/gesture-flow/list.vue"),
+        name: "GestureFlowList",
+        meta: {
+          title: "动作流管理"
+        }
+      }
+    ]
   }
-
 ]
 
-/**
- * @name 动态路由
- * @description 用来放置有权限 (Roles 属性) 的路由
- * @description 必须带有唯一的 Name 属性
- */
+/** 动态路由 */
 export const dynamicRoutes: RouteRecordRaw[] = []
 
 /** 路由实例 */
@@ -190,7 +226,6 @@ export const router = createRouter({
 /** 重置路由 */
 export function resetRouter() {
   try {
-    // 注意：所有动态路由路由必须带有 Name 属性，否则可能会不能完全重置干净
     router.getRoutes().forEach((route) => {
       const { name, meta } = route
       if (name && meta.roles?.length) {
@@ -198,10 +233,8 @@ export function resetRouter() {
       }
     })
   } catch {
-    // 强制刷新浏览器也行，只是交互体验不是很好
     location.reload()
   }
 }
 
-// 注册路由导航守卫
 registerNavigationGuard(router)
