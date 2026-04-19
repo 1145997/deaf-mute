@@ -1,6 +1,6 @@
 # 智能手语翻译工具
 
-基于原“校园失物招领系统”二次开发的双创项目后端重构版本。当前仓库已经完成第一期后端骨架落地，主业务语义已从 `lostfound` 迁移到 `post`，并保留了登录、公告、评论、分类、用户管理、文件上传、统计等平台能力。
+基于旧项目代码基础重构的双创项目版本。当前仓库已经完成第一期后端骨架落地，主业务语义已从 `lostfound` 迁移到 `post`，并保留了登录、公告、评论、分类、用户管理、文件上传、统计等平台能力。
 
 ## 当前状态
 
@@ -37,9 +37,12 @@ deaf-mute/
 ├─ adminend/                        # 管理端前端
 ├─ blind/                           # 识别原型参考项目
 ├─ sql/init.sql                     # 第一期数据库初始化脚本
-├─ docs/deafmute_schema_draft.sql   # 完整数据库设计草案
-├─ docs/backend_api_dto_vo_checklist.md
-├─ docs/api_phase1.md               # 当前一期接口文档
+├─ docs/README.md                   # 文档总索引
+├─ docs/01-项目规划/                # 路线图、阶段启动与收尾
+├─ docs/02-协议接口/                # API、DTO/VO 协议文档
+├─ docs/03-公用/                    # 数据库草案等公共资料
+├─ docs/04-后端日志/                # 后端开发与联调记录
+├─ docs/05-管理端日志/              # 管理端迁移、对接与验收记录
 └─ kill_8080.bat                    # 清理 8080 端口占用
 ```
 
@@ -85,7 +88,7 @@ deaf-mute/
 
 如果你需要完整识别模块设计，请看：
 
-- [deafmute_schema_draft.sql](/D:/Downloads/deaf-mute/docs/deafmute_schema_draft.sql)
+- [deafmute_schema_draft.sql](/D:/Downloads/deaf-mute/docs/03-公用/deafmute_schema_draft.sql)
 
 ## 启动后端
 
@@ -152,10 +155,10 @@ cd backend\deafmute
 
 详细接口见：
 
-- [api_phase1.md](/D:/Downloads/deaf-mute/docs/api_phase1.md)
-- [development_roadmap.md](/D:/Downloads/deaf-mute/docs/development_roadmap.md)
-- [phase1_closeout.md](/D:/Downloads/deaf-mute/docs/phase1_closeout.md)
-- [phase2_kickoff.md](/D:/Downloads/deaf-mute/docs/phase2_kickoff.md)
+- [api_phase1.md](/D:/Downloads/deaf-mute/docs/02-协议接口/api_phase1.md)
+- [development_roadmap.md](/D:/Downloads/deaf-mute/docs/01-项目规划/development_roadmap.md)
+- [phase1_closeout.md](/D:/Downloads/deaf-mute/docs/01-项目规划/phase1_closeout.md)
+- [phase2_kickoff.md](/D:/Downloads/deaf-mute/docs/01-项目规划/phase2_kickoff.md)
 
 ## 关于旧 lostfound 模块
 
@@ -194,11 +197,11 @@ cd backend\deafmute
 
 ## 文档归档
 
-当前文档已按“总览 / 后端 / 管理端 / 阶段记录”整理，统一入口见：
+当前文档已按“项目规划 / 协议接口 / 公用 / 后端日志 / 管理端日志”整理，统一入口见：
 
 - [docs/README.md](/D:/Downloads/deaf-mute/docs/README.md)
 
 重点文档：
 
-- 后端开发日志：[devlog_backend.md](/D:/Downloads/deaf-mute/docs/devlog_backend.md)
-- 管理端二期第一批验收：[phase2_batch1_admin_acceptance.md](/D:/Downloads/deaf-mute/docs/phase2_batch1_admin_acceptance.md)
+- 后端开发日志：[devlog_backend.md](/D:/Downloads/deaf-mute/docs/04-后端日志/devlog_backend.md)
+- 管理端二期第一批验收：[phase2_batch1_admin_acceptance.md](/D:/Downloads/deaf-mute/docs/05-管理端日志/phase2_batch1_admin_acceptance.md)

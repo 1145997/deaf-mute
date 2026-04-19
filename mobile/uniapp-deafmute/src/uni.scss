@@ -1,0 +1,49 @@
+$uni-color-primary: #ff7b54;
+$uni-color-success: #3fb07f;
+$uni-color-warning: #f8b44f;
+$uni-color-error: #e85d75;
+
+$uni-text-color: #18243d;
+$uni-text-color-inverse: #ffffff;
+$uni-text-color-grey: #6e7892;
+$uni-text-color-placeholder: #9da7bf;
+$uni-text-color-disable: #c1c8d8;
+
+$uni-bg-color: #f7f9ff;
+$uni-bg-color-grey: #edf2ff;
+$uni-bg-color-hover: #e5ecff;
+$uni-bg-color-mask: rgba(17, 26, 46, 0.4);
+
+$uni-border-color: rgba(167, 184, 221, 0.38);
+
+$uni-font-size-sm: 24rpx;
+$uni-font-size-base: 28rpx;
+$uni-font-size-lg: 32rpx;
+
+$uni-spacing-row-sm: 12rpx;
+$uni-spacing-row-base: 20rpx;
+$uni-spacing-row-lg: 28rpx;
+
+$uni-spacing-col-sm: 12rpx;
+$uni-spacing-col-base: 20rpx;
+$uni-spacing-col-lg: 28rpx;
+
+$uni-border-radius-sm: 8rpx;
+$uni-border-radius-base: 20rpx;
+$uni-border-radius-lg: 36rpx;
+$uni-border-radius-circle: 50%;
+
+:root,
+page {
+  --app-text-primary: #18243d;
+  --app-text-secondary: #5d6985;
+  --app-text-tertiary: #8c97af;
+  --app-brand: #ff7b54;
+  --app-brand-strong: #ff5d4a;
+  --app-brand-soft: rgba(255, 123, 84, 0.18);
+  --app-card: rgba(255, 255, 255, 0.72);
+  --app-card-strong: rgba(255, 255, 255, 0.86);
+  --app-border: rgba(167, 184, 221, 0.34);
+  --app-shadow: 0 18rpx 50rpx rgba(109, 131, 180, 0.16);
+  --app-chip: rgba(255, 255, 255, 0.88);
+}

@@ -14,6 +14,7 @@ USE deafmute;
 SET FOREIGN_KEY_CHECKS = 0;
 
 DROP TABLE IF EXISTS recognition_config;
+DROP TABLE IF EXISTS recognition_record;
 DROP TABLE IF EXISTS gesture_flow_output;
 DROP TABLE IF EXISTS gesture_flow_node;
 DROP TABLE IF EXISTS gesture_flow;
@@ -202,6 +203,29 @@ CREATE TABLE recognition_config (
     UNIQUE KEY uk_recognition_config_name (config_name),
     KEY idx_recognition_config_active_flag (active_flag)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='全局识别配置';
+
+CREATE TABLE recognition_record (
+    id BIGINT NOT NULL AUTO_INCREMENT COMMENT '识别记录ID',
+    user_id BIGINT DEFAULT NULL COMMENT '用户ID',
+    session_id VARCHAR(64) NOT NULL COMMENT '会话ID',
+    matched_gesture_code VARCHAR(50) DEFAULT NULL COMMENT '命中的基础手势编码',
+    matched_flow_id BIGINT DEFAULT NULL COMMENT '命中的动作流ID',
+    matched_node_path VARCHAR(255) DEFAULT NULL COMMENT '命中的节点路径',
+    output_type VARCHAR(20) DEFAULT NULL COMMENT '输出类型',
+    output_text VARCHAR(255) DEFAULT NULL COMMENT '输出文本',
+    control_action VARCHAR(30) DEFAULT NULL COMMENT '控制动作',
+    confidence_score DECIMAL(5,4) DEFAULT NULL COMMENT '置信度',
+    request_payload_json JSON DEFAULT NULL COMMENT '请求原始数据',
+    result_payload_json JSON DEFAULT NULL COMMENT '结果数据',
+    client_platform VARCHAR(30) DEFAULT NULL COMMENT '客户端平台',
+    input_mode VARCHAR(30) DEFAULT NULL COMMENT '输入模式 gestureCode/landmarks',
+    source VARCHAR(50) DEFAULT NULL COMMENT '输入来源 bridge/camera/front/back',
+    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    PRIMARY KEY (id),
+    KEY idx_recognition_record_user_id (user_id),
+    KEY idx_recognition_record_session_id (session_id),
+    KEY idx_recognition_record_flow_id (matched_flow_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='识别记录表';
 
 CREATE TABLE gesture_flow (
     id BIGINT NOT NULL AUTO_INCREMENT COMMENT '动作流ID',

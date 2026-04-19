@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Gesture Word Input</title>
+
+<style>
+body{
+    font-family: Arial, sans-serif;
+    text-align:center;
+    background:#f5f5f5;
+    margin:0;
+    padding:20px;
+}
+
+h2{
+    margin-bottom:16px;
+}
+
+video, canvas{
+    width:640px;
+    max-width:95vw;
+    border:2px solid #222;
+    border-radius:12px;
+    background:#000;
+    transform: scaleX(-1);  /* 水平镜像翻转 */
+}
+
+#panel{
+    margin:20px auto 0;
+    font-size:20px;
+    background:#fff;
+    padding:20px;
+    border-radius:16px;
+    width:min(800px, 95vw);
+    box-shadow:0 4px 18px rgba(0,0,0,0.08);
+}
+
+.row{
+    margin:10px 0;
+}
+
+.locked{
+    color:#d33;
+    font-weight:bold;
+}
+
+#sentenceBox{
+    margin-top:18px;
+    background:#fafafa;
+    border:1px solid #ddd;
+    border-radius:12px;
+    padding:16px;
+}
+
+#sentence{
+    min-height:36px;
+    font-size:28px;
+    font-weight:bold;
+    color:#222;
+    word-break:break-all;
+}
+
+#tokens{
+    margin-top:12px;
+    font-size:16px;
+    color:#666;
+}
+
+#countdown{
+    margin-top:10px;
+    font-size:18px;
+    color:#0a6;
+    font-weight:bold;
+}
+
+#toolbar{
+    margin-top:16px;
+}
+
+button{
+    font-size:16px;
+    padding:10px 14px;
+    margin:6px;
+    border:none;
+    border-radius:10px;
+    background:#222;
+    color:#fff;
+    cursor:pointer;
+}
+
+button:hover{
+    opacity:.9;
+}
+
+.tip{
+    margin-top:14px;
+    color:#666;
+    font-size:14px;
+    line-height:1.7;
+}
+
+body.preview-mode{
+    padding:0;
+    background:transparent;
+    overflow:hidden;
+}
+
+body.preview-mode h2,
+body.preview-mode #panel{
+    display:none;
+}
+
+body.preview-mode video{
+    display:none;
+}
+
+body.preview-mode #outputCanvas{
+    position:fixed;
+    inset:0;
+    width:100vw !important;
+    height:100vh !important;
+    max-width:none;
+    border:none;
+    border-radius:0;
+    background:#000;
+    object-fit:cover;
+}
+</style>
+</head>
+
+<body>
+
+<h2>Gesture Word Input Demo</h2>
+
+<video id="video" autoplay playsinline></video>
+
+<div id="panel">
+
+    <div class="row">Gesture: <span id="gesture">-</span></div>
+    <div class="row">Code: <span id="code">-</span></div>
+    <div class="row">Text: <span id="label">-</span></div>
+    <div class="row">State: <span id="state">idle</span></div>
+    <div class="row">Locked: <span id="locked">false</span></div>
+
+    <div id="sentenceBox">
+        <div>Sentence:</div>
+        <div id="sentence"></div>
+        <div id="tokens"></div>
+        <div id="countdown"></div>
+    </div>
+
+    <div id="toolbar">
+        <button id="speakTestBtn">测试语音</button>
+        <button id="deleteBtn">删除上一个词</button>
+        <button id="clearBtn">清空句子</button>
+        <button id="resetBtn">重置后端状态</button>
+    </div>
+
+    <div class="tip">
+        自动播报逻辑：识别到新词后，1 秒内没有新输入，则自动 TTS。<br>
+        手势建议：握拳可作为删除，张手可作为清空或忽略。
+    </div>
+</div>
+
+<script src="./mediapipe/hands.js"></script>
+<script src="./mediapipe/camera_utils.js"></script>
+<script src="./mediapipe/drawing_utils.js"></script>
+
+<script>
+const video = document.getElementById("video")
+
+const gestureText = document.getElementById("gesture")
+const codeText = document.getElementById("code")
+const labelText = document.getElementById("label")
+const stateText = document.getElementById("state")
+const lockedText = document.getElementById("locked")
+
+const sentenceText = document.getElementById("sentence")
+const tokensText = document.getElementById("tokens")
+const countdownText = document.getElementById("countdown")
+
+const speakTestBtn = document.getElementById("speakTestBtn")
+const deleteBtn = document.getElementById("deleteBtn")
+const clearBtn = document.getElementById("clearBtn")
+const resetBtn = document.getElementById("resetBtn")
+
+const BRIDGE_TYPES = {
+    STATUS: "bridge-status",
+    PREDICT: "gesture-predict",
+    LANDMARKS: "gesture-landmarks",
+    ERROR: "bridge-error"
+}
+
+const searchParams = new URLSearchParams(window.location.search)
+const bridgeInputMode = searchParams.get("bridgeInputMode") === "gestureCode" ? "gestureCode" : "landmarks"
+const bridgeFrameIntervalMs = Number(searchParams.get("bridgeFrameIntervalMs")) || 120
+const bridgeCameraFacing = searchParams.get("bridgeCameraFacing") || "front"
+const bridgeMirrored = searchParams.get("bridgeMirrored") === "true"
+const bridgeLandmarkSource = searchParams.get("bridgeLandmarkSource") || "android-landmarks"
+const bridgeLayout = searchParams.get("bridgeLayout") === "preview" ? "preview" : "full"
+
+const canvas = document.createElement("canvas")
+canvas.id = "outputCanvas"
+const ctx = canvas.getContext("2d")
+document.body.appendChild(canvas)
+
+if(bridgeLayout === "preview"){
+    document.body.classList.add("preview-mode")
+}
+
+// ---------------------
+// 参数
+// ---------------------
+const SENTENCE_TIMEOUT = 5000
+const SPEAK_COOLDOWN = 1200
+
+// ---------------------
+// 运行时状态
+// ---------------------
+let sentenceBuffer = []
+let lastCode = ""
+let lastSpeakTime = 0
+let sentenceTimer = null
+let countdownInterval = null
+let sentenceDeadline = 0
+
+let lastValidGesture = "-"
+let lastValidCode = "-"
+let lastValidLabel = "-"
+let bridgeFrameNo = 0
+let lastBridgeSendAt = 0
+
+// ---------------------
+// 工具
+// ---------------------
+function renderSentenceUI(){
+    const sentence = sentenceBuffer.join("")
+    sentenceText.innerText = sentence
+    tokensText.innerText = sentenceBuffer.length
+        ? `词元：${sentenceBuffer.join(" | ")}`
+        : ""
+}
+
+function clearSentenceTimer(){
+    if(sentenceTimer){
+        clearTimeout(sentenceTimer)
+        sentenceTimer = null
+    }
+    if(countdownInterval){
+        clearInterval(countdownInterval)
+        countdownInterval = null
+    }
+    countdownText.innerText = ""
+}
+
+function startSentenceTimer(){
+    clearSentenceTimer()
+
+    sentenceDeadline = Date.now() + SENTENCE_TIMEOUT
+
+    countdownInterval = setInterval(()=>{
+        const remain = sentenceDeadline - Date.now()
+        if(remain <= 0){
+            countdownText.innerText = ""
+            clearInterval(countdownInterval)
+            countdownInterval = null
+            return
+        }
+        countdownText.innerText = `自动播报倒计时：${(remain / 1000).toFixed(1)}s`
+    }, 100)
+
+    sentenceTimer = setTimeout(()=>{
+        autoCommitSentence()
+    }, SENTENCE_TIMEOUT)
+}
+
+function autoCommitSentence(){
+    clearSentenceTimer()
+
+    if(sentenceBuffer.length === 0){
+        return
+    }
+
+    const sentence = sentenceBuffer.join("")
+    console.log("Auto TTS:", sentence)
+
+    speak(sentence)
+
+    sentenceBuffer = []
+    renderSentenceUI()
+    lastCode = ""
+}
+
+function deleteLastToken(){
+    clearSentenceTimer()
+
+    if(sentenceBuffer.length > 0){
+        sentenceBuffer.pop()
+        renderSentenceUI()
+    }
+
+    if(sentenceBuffer.length > 0){
+        startSentenceTimer()
+    }else{
+        lastCode = ""
+    }
+}
+
+function clearSentence(){
+    clearSentenceTimer()
+    sentenceBuffer = []
+    lastCode = ""
+    renderSentenceUI()
+}
+
+function speak(text){
+    if(!text) return
+
+    const now = Date.now()
+    if(now - lastSpeakTime < SPEAK_COOLDOWN){
+        return
+    }
+
+    lastSpeakTime = now
+
+    const msg = new SpeechSynthesisUtterance(text)
+    msg.lang = "zh-CN"
+    msg.rate = 1.0
+    msg.pitch = 1.0
+
+    speechSynthesis.cancel()
+    speechSynthesis.speak(msg)
+}
+
+function postBridgeMessage(type, payload){
+    const message = { type, payload }
+
+    try{
+        if(window.uni && typeof window.uni.postMessage === "function"){
+            window.uni.postMessage({
+                data: message
+            })
+        }
+    }catch(err){
+        console.error("uni.postMessage failed", err)
+    }
+
+    try{
+        if(window.parent && window.parent !== window){
+            window.parent.postMessage(message, "*")
+        }
+    }catch(err){
+        console.error("window.postMessage failed", err)
+    }
+}
+
+// ---------------------
+// 后端交互
+// ---------------------
+function toLandmarkPayload(landmarks, handedness){
+    return {
+        frameNo: ++bridgeFrameNo,
+        capturedAt: Date.now(),
+        source: bridgeLandmarkSource,
+        handedness: handedness ?? null,
+        mirrored: bridgeMirrored,
+        cameraFacing: bridgeCameraFacing,
+        landmarks: landmarks.map(p => ({
+            x: p.x,
+            y: p.y,
+            z: p.z
+        }))
+    }
+}
+
+async function sendLandmarks(landmarks, handedness){
+    const now = Date.now()
+    if(now - lastBridgeSendAt < bridgeFrameIntervalMs){
+        return
+    }
+    lastBridgeSendAt = now
+
+    const payload = toLandmarkPayload(landmarks, handedness)
+
+    if(bridgeInputMode === "landmarks"){
+        gestureText.innerText = handedness ? `landmarks:${handedness}` : "landmarks"
+        codeText.innerText = `frame_${payload.frameNo}`
+        labelText.innerText = `points:${payload.landmarks.length}`
+        stateText.innerText = "bridge-landmarks"
+        postBridgeMessage(BRIDGE_TYPES.LANDMARKS, payload)
+        return
+    }
+
+    try{
+        const res = await fetch("/predict", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        })
+
+        const data = await res.json()
+        updateUI(data)
+        postBridgeMessage(BRIDGE_TYPES.PREDICT, data)
+
+    }catch(err){
+        console.error(err)
+        postBridgeMessage(BRIDGE_TYPES.ERROR, {
+            message: err?.message ?? "predict request failed"
+        })
+    }
+}
+
+async function resetBackend(){
+    try{
+        await fetch("/reset", { method: "POST" })
+        postBridgeMessage(BRIDGE_TYPES.STATUS, {
+            connected: true,
+            message: "engine reset"
+        })
+    }catch(err){
+        console.error(err)
+        postBridgeMessage(BRIDGE_TYPES.ERROR, {
+            message: err?.message ?? "reset request failed"
+        })
+    }
+}
+
+// ---------------------
+// UI 更新
+// ---------------------
+function updateUI(data){
+    stateText.innerText = data.state ?? "idle"
+    lockedText.innerText = String(data.locked ?? false)
+
+    if(data.locked){
+        lockedText.classList.add("locked")
+    }else{
+        lockedText.classList.remove("locked")
+    }
+
+    // 保留最近一次有效识别，避免闪一下就没了
+    if (data.gesture) lastValidGesture = data.gesture
+    if (data.code) lastValidCode = data.code
+    if (data.label) lastValidLabel = data.label
+
+    gestureText.innerText = lastValidGesture
+    codeText.innerText = lastValidCode
+    labelText.innerText = lastValidLabel
+
+    // 提交类手势：这里不再靠它提交整句，直接忽略
+    if (data.gesture === "open_palm" || data.gesture === "is_open_palm") {
+        return
+    }
+
+    // 删除手势
+    if (data.gesture === "fist" || data.gesture === "is_fist") {
+        deleteLastToken()
+        return
+    }
+
+    // 没识别到新 code，不入句
+    if (!data.code) {
+        return
+    }
+
+    // 同一个 code 不重复入句
+    if (data.code === lastCode) {
+        return
+    }
+
+    lastCode = data.code
+
+    // 一些控制词可以不入句，这里按你当前需求先过滤掉“进入输入”“确认”“取消”
+    const controlCodes = new Set(["chr_i", "chr_j"])
+    if (controlCodes.has(data.code)) {
+        return
+    }
+
+    if (data.label) {
+        sentenceBuffer.push(data.label)
+        renderSentenceUI()
+        startSentenceTimer()
+    }
+}
+
+// ---------------------
+// 按钮
+// ---------------------
+speakTestBtn.addEventListener("click", () => {
+    speak("测试语音成功")
+})
+
+deleteBtn.addEventListener("click", () => {
+    deleteLastToken()
+})
+
+clearBtn.addEventListener("click", () => {
+    clearSentence()
+})
+
+resetBtn.addEventListener("click", async () => {
+    await resetBackend()
+    clearSentence()
+    gestureText.innerText = "-"
+    codeText.innerText = "-"
+    labelText.innerText = "-"
+    stateText.innerText = "idle"
+    lockedText.innerText = "false"
+    lockedText.classList.remove("locked")
+    postBridgeMessage(BRIDGE_TYPES.STATUS, {
+        connected: true,
+        message: "frontend reset complete"
+    })
+})
+
+// ---------------------
+// MediaPipe
+// ---------------------
+const hands = new Hands({
+    locateFile: (file) => {
+        return `./mediapipe/${file}`
+    }
+})
+
+document.addEventListener("UniAppJSBridgeReady", function() {
+    postBridgeMessage(BRIDGE_TYPES.STATUS, {
+        connected: true,
+        message: `uni bridge ready (${bridgeInputMode}, ${bridgeCameraFacing}, mirrored=${bridgeMirrored}, ${bridgeLayout})`
+    })
+})
+
+window.addEventListener("error", function(evt){
+    postBridgeMessage(BRIDGE_TYPES.ERROR, {
+        message: evt?.message ?? "runtime error"
+    })
+})
+
+window.addEventListener("load", function() {
+    postBridgeMessage(BRIDGE_TYPES.STATUS, {
+        connected: true,
+        message: `blind page loaded (${bridgeInputMode}, ${bridgeCameraFacing}, mirrored=${bridgeMirrored}, ${bridgeLayout})`
+    })
+})
+
+hands.setOptions({
+    maxNumHands:1,
+    modelComplexity:1,
+    minDetectionConfidence:0.7,
+    minTrackingConfidence:0.7
+})
+
+hands.onResults((results)=>{
+    canvas.width = video.videoWidth
+    canvas.height = video.videoHeight
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height)
+
+    if(results.multiHandLandmarks){
+        for(let index = 0; index < results.multiHandLandmarks.length; index += 1){
+            const landmarks = results.multiHandLandmarks[index]
+            const handedness = results.multiHandedness?.[index]?.label ?? null
+            drawConnectors(ctx, landmarks, HAND_CONNECTIONS)
+            drawLandmarks(ctx, landmarks)
+            sendLandmarks(landmarks, handedness)
+        }
+    }
+})
+
+const camera = new Camera(video,{
+    onFrame: async ()=>{
+        await hands.send({image:video})
+    },
+    width:640,
+    height:480
+})
+
+camera.start()
+renderSentenceUI()
+</script>
+
+</body>
+</html>

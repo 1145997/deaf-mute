@@ -1,0 +1,8 @@
+<resources>
+    <color name="demo_card">#FFF8F4ED</color>
+    <color name="demo_border">#FFE0D4C4</color>
+    <color name="demo_primary">#FF2C6E49</color>
+    <color name="demo_text_primary">#FF1F1F1F</color>
+    <color name="demo_text_secondary">#FF5C5C5C</color>
+</resources>
+

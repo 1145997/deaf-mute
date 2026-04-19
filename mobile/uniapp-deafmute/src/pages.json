@@ -1,0 +1,45 @@
+{
+  "pages": [
+    {
+      "path": "pages/home/index",
+      "style": {
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/learn/index",
+      "style": {
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/publish/index",
+      "style": {
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/profile/index",
+      "style": {
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/bridge/index",
+      "style": {
+        "navigationStyle": "custom"
+      }
+    }
+  ],
+  "globalStyle": {
+    "backgroundColor": "@bgColor",
+    "backgroundColorBottom": "@bgColorBottom",
+    "backgroundColorTop": "@bgColorTop",
+    "backgroundTextStyle": "@bgTxtStyle",
+    "navigationBarBackgroundColor": "#edf3ff",
+    "navigationBarTextStyle": "@navTxtStyle",
+    "navigationBarTitleText": "智能手语翻译工具",
+    "navigationStyle": "custom"
+  },
+  "subPackages": []
+}

@@ -76,7 +76,7 @@ function handleLogin() {
     <div class="login-container">
       <div class="login-card">
         <div class="title">
-          校园失物招领后台管理系统
+          智能手语翻译工具后台管理系统
         </div>
         <div class="content">
           <el-form ref="loginFormRef" :model="loginFormData" :rules="loginFormRules" @keyup.enter="handleLogin">

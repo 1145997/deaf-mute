@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">CameraX Recognition Demo</string>
+    <string name="demo_subtitle">相机取帧 -> MediaPipe 21 点 -> /recognition/predict -> 本地组句/TTS</string>
+    <string name="hint_base_url">Recognition API Base，例如 http://10.0.2.2:8080/api/</string>
+    <string name="hint_token">用户 token（可选）</string>
+    <string name="action_save_restart">保存并重连</string>
+    <string name="action_switch_camera">切换前后摄</string>
+    <string name="action_clear">清空缓冲</string>
+    <string name="action_speak">立即播报</string>
+    <string name="action_close_session">关闭会话</string>
+    <string name="action_open_tts_settings">打开系统 TTS 设置</string>
+    <string name="action_retry_tts_detection">重试检测</string>
+    <string name="label_debug">调试信息</string>
+    <string name="label_contract">Landmarks 契约</string>
+    <string name="label_tts_status">语音播报状态</string>
+</resources>

@@ -1,0 +1,13 @@
+*.iml
+.gradle/
+.idea/
+local.properties
+build/
+captures/
+app/build/
+
+gradle-8.7/
+gradle-8.7-bin.zip
+.externalNativeBuild/
+.cxx/
+*.log
